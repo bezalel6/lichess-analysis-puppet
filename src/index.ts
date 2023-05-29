@@ -18,13 +18,15 @@ const analyze = async (fen: string) => {
     let evaluation: string;
     while (keepWaiting) {
       evaluation = await page.$eval("pearl", (p) => p.innerHTML);
+      const diff = (new Date().getTime() - started) / 1000;
       if (evaluation !== THINKING_HTML) {
-        const diff = (new Date().getTime() - started) / 1000;
         const stillThinking = await page.$(COMPUTING_HTML);
 
         if (diff > min) {
           keepWaiting = stillThinking && diff < max;
         } else keepWaiting = !!stillThinking;
+      } else if (diff > max) {
+        return "ERROR";
       }
       await timeout(timeSleep);
     }
